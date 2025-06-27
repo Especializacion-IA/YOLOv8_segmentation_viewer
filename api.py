@@ -5,22 +5,24 @@ import numpy as np
 import cv2
 import base64
 from PIL import Image
+import io
 
 app = FastAPI()
 
-# Carga del modelo
+
 model = YOLO("model/best1.pt")
 
 last_image_bytes = None
 last_summary_text = ""
 
-# Colores por clase
+
 COLOR_MAP = {
-    "person": (0, 0, 255),         # Rojo
-    "hard_hat": (0, 255, 0),       # Verde
-    "no_hard_hat": (0, 165, 255),  # Naranja
-    "no_head_wear": (0, 0, 139),   # Azul oscuro
+    "person": (0, 0, 255),         
+    "hard_hat": (0, 255, 0),       
+    "no_hard_hat": (0, 165, 255),  
+    "no_head_wear": (0, 0, 139),   
 }
+
 
 @app.post("/detect")
 async def detect(file: UploadFile = File(...)):
@@ -28,16 +30,16 @@ async def detect(file: UploadFile = File(...)):
 
     try:
         image_bytes = await file.read()
-        img_pil = Image.open(file.file).convert("RGB")
+        img_pil = Image.open(io.BytesIO(image_bytes)).convert("RGB")
         img_array = np.array(img_pil)
 
-        # 🔍 Inferencia con umbral de confianza
+      
         results = model(img_array, conf=0.35)
         result = results[0]
         boxes = result.boxes
         names = model.names
 
-        if boxes is None:
+        if boxes is None or len(boxes) == 0:
             return JSONResponse(content={
                 "summary_text": "⚠️ No se reconocieron objetos.",
                 "summary": {},
@@ -48,7 +50,7 @@ async def detect(file: UploadFile = File(...)):
         detections = []
         conteo = {"person": 0, "hard_hat": 0, "no_hard_hat": 0, "no_head_wear": 0}
 
-        for i, box in enumerate(boxes):
+        for box in boxes:
             conf = float(box.conf)
             if conf < 0.35:
                 continue
@@ -71,17 +73,19 @@ async def detect(file: UploadFile = File(...)):
 
         if not detections:
             return JSONResponse(content={
-                "summary_text": "⚠️ No se detectaron objetos con confianza >= 0.3.",
+                "summary_text": "⚠️ No se detectaron objetos con confianza >= 0.35.",
                 "summary": {},
                 "detections": [],
                 "image_base64": ""
             })
 
-        # 🖼️ Codificar imagen
-        _, buffer = cv2.imencode('.jpg', img_array)
-        last_image_bytes = buffer.tobytes()
+       
+        img_pil_result = Image.fromarray(img_array)
+        buffer = io.BytesIO()
+        img_pil_result.save(buffer, format="JPEG")
+        last_image_bytes = buffer.getvalue()
 
-        # 📊 Resumen en texto plano
+        
         resumen = (
             f"Se detectaron {len(detections)} objetos.\n"
             f"- Personas detectadas: {conteo.get('person', 0)}\n"
@@ -113,7 +117,7 @@ def get_last_image():
         <head><title>Imagen Detectada</title></head>
         <body style="font-family:sans-serif;">
             <h2>Última imagen procesada</h2>
-            <img src="data:image/jpeg;base64,{base64_img}" alt="Imagen detectada" style="max-width:100%; border:1px solid #ccc;" />
+            <img src="data:image/jpeg;base64,{base64_img}" alt="Imagen detectada" style="width:640px; border:1px solid #ccc;" />
         </body>
     </html>
     """
