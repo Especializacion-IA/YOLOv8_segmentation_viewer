@@ -1,104 +1,99 @@
-# 🛠️ YOLOv8 FastAPI Backend - Detección de Casco con Segmentación
+🛠️ YOLOv8 FastAPI Backend - Detección de Casco con Segmentación
+Este proyecto ofrece una API construida con FastAPI que utiliza un modelo entrenado con YOLOv8 para detectar:
 
-Este proyecto proporciona una API construida con **FastAPI** que utiliza un modelo de **YOLOv8 segmentación** entrenado para detectar:
+👷 Personas
 
-- Personas
-- Cascos de seguridad (`hard_hat`)
-- Personas con objetos en la cabeza sin protección (`no_hard_hat`)
-- Personas sin nada en la cabeza (`no_head_wear`)
+⛑️ Cascos de seguridad (hard_hat)
 
----
+👒 Objetos en la cabeza sin protección (no_hard_hat)
 
-## 🚀 Requisitos
+🙆‍♂️ Personas sin nada en la cabeza (no_head_wear)
 
-- Python 3.8 o superior
-- Paquetes: `ultralytics`, `opencv-python`, `fastapi`, `pillow`, `uvicorn`, `numpy`
+🚀 Requisitos
+Python 3.8 o superior
 
-Instala las dependencias con:
+🔧 Instalación manual de dependencias:
 
-```bash
+bash
+
+pip install ultralytics fastapi uvicorn opencv-python numpy pillow
+
+O bien, ejecuta requirements.txt con:
+
+bash
+
 pip install -r requirements.txt
-```
 
 
+📁 ESTRUCTURA DEL PROYECTO
 
-## 📁 Estructura de archivos
-
-```
 project/
-├── api.py                   # Código principal para levantar la API
-├── main.py                  # Script para pruebas locales con visualización
-├── model/
-│   └── best.pt              # Modelo YOLOv8 entrenado con segmentación
+├── app/
+│   ├── main.py               # Punto de entrada de la aplicación FastAPI
+│   ├── routes/
+│   │   ├── __init__.py
+│   │   ├── detect.py         # Lógica de detección
+│   │   └── view.py           # Rutas de vista y resumen
+│   └── model/
+│       └── best.pt           # Modelo entrenado YOLOv8 (segmentación)
 ├── requirements.txt
 └── README.md
-
-
-
----
-
-## ▶️ Cómo ejecutar el servidor
+▶️ Cómo ejecutar el servidor
 
 Desde la raíz del proyecto, ejecuta:
 
-```bash
-uvicorn api:app --reload
-```
+bash
 
-Esto levantará la API en:
+uvicorn app.main:app --reload
+Esto iniciará la API en:
 
-- Swagger UI: [http://localhost:8000/docs](http://localhost:8000/docs)
-- Página resumen: [http://localhost:8000/](http://localhost:8000/)
-- Imagen procesada: [http://localhost:8000/image](http://localhost:8000/image)
+Swagger UI: http://localhost:8000/docs
 
----
+Página resumen: http://localhost:8000/
 
-## ▶️ Endpoints disponibles
+Imagen procesada: http://localhost:8000/image
 
-### 🔍 `POST /detect`
 
-Sube una imagen y devuelve:
+📡 ENDPOINTS DISPONIBLES:
 
-- Lista de detecciones con: clase, confianza, coordenadas
-- Imagen segmentada codificada en base64
-- Resumen textual y numérico
+🔍 POST /detect
+Envía una imagen y devuelve:
 
-**Ejemplo con `curl`:**
+Detecciones con: clase, confianza, bounding box
 
-```bash
+Imagen segmentada codificada en base64
+
+Resumen textual y numérico
+
+Verificación si hay más cascos que personas
+
+Ejemplo con curl:
+
+bash
+
 curl -X 'POST' \
   'http://localhost:8000/detect' \
   -H 'accept: application/json' \
   -H 'Content-Type: multipart/form-data' \
   -F 'file=@ruta/a/una/imagen.jpg'
-```
+🖼 GET /image
+Devuelve una página HTML que muestra la última imagen procesada con segmentación aplicada.
 
----
+🏠 GET /
+Muestra un resumen textual de la última inferencia y enlaces a Swagger e imagen segmentada.
 
-### 🖼 `GET /image`
+📑 GET /docs
+Abre la interfaz Swagger generada automáticamente por FastAPI.
 
-Devuelve una página HTML que muestra la **última imagen procesada** con segmentación aplicada.
+🧠 Notas para el desarrollador Frontend
+El frontend debe enviar imágenes al endpoint /detect como multipart/form-data bajo el campo file.
 
----
+La respuesta incluye:
 
-### 🏠 `GET /`
+"image_base64": para incrustar directamente en un <img src="...">
 
-Página HTML con resumen textual y enlace para visualizar la imagen segmentada.
+"summary_text": resumen en texto plano
 
----
+"summary": conteo por clase
 
-### 📑 `GET /docs`
-
-Interfaz Swagger (auto-generada por FastAPI) para probar y documentar la API desde el navegador.
-
----
-
-## 🧠 Notas para el desarrollador Frontend
-
-- El frontend debe enviar imágenes a `/detect` como `multipart/form-data` bajo el campo `file`.
-- La respuesta incluye la imagen procesada como `image_base64`, útil para mostrar directamente en el frontend con `<img src="..." />`.
-- También se devuelve un resumen textual (`summary_text`) y un conteo por clase (`summary`).
-
----
-
-
+La lógica incluye una advertencia si hay más cascos detectados que personas.
