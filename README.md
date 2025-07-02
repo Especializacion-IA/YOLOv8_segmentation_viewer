@@ -27,18 +27,25 @@ pip install -r requirements.txt
 
 📁 ESTRUCTURA DEL PROYECTO
 
-project/
+YOLOv8_SEGMENTATION_VIEWER/
 ├── app/
-│   ├── main.py               # Punto de entrada de la aplicación FastAPI
+│   ├── main.py                  # Punto de entrada FastAPI
+│   ├── __init__.py
+│   ├── core/
+│   │   ├── model.py             # Carga del modelo YOLO
+│   │   └── state.py             # Variables compartidas (estado global)
 │   ├── routes/
-│   │   ├── __init__.py
-│   │   ├── detect.py         # Lógica de detección
-│   │   └── view.py           # Rutas de vista y resumen
-│   └── model/
-│       └── best.pt           # Modelo entrenado YOLOv8 (segmentación)
+│   │   ├── detect.py            # Endpoint POST /detect
+│   │   └── view.py              # Endpoints GET /, /image
+│   └── utils/
+│       └── image_handler.py     # Utilidades de manejo de imágenes
+├── model/
+│   └── best.pt                  # Modelo YOLOv8 de segmentación
 ├── requirements.txt
 └── README.md
-▶️ Cómo ejecutar el servidor
+
+
+▶️ COMO EJECUTAR EL SERVIDOR
 
 Desde la raíz del proyecto, ejecuta:
 
@@ -47,9 +54,9 @@ bash
 uvicorn app.main:app --reload
 Esto iniciará la API en:
 
-Swagger UI: http://localhost:8000/docs
-
 Página resumen: http://localhost:8000/
+
+Swagger UI: http://localhost:8000/docs
 
 Imagen procesada: http://localhost:8000/image
 
