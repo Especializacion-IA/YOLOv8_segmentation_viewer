@@ -9,20 +9,18 @@ import io
 
 app = FastAPI()
 
-
-model = YOLO("model/best1.pt")
+# Carga del modelo de segmentación
+model = YOLO("model/best.pt")
 
 last_image_bytes = None
 last_summary_text = ""
 
-
 COLOR_MAP = {
-    "person": (0, 0, 255),         
-    "hard_hat": (0, 255, 0),       
-    "no_hard_hat": (0, 165, 255),  
-    "no_head_wear": (0, 0, 139),   
+    "person": (0, 0, 255),
+    "hard_hat": (0, 255, 0),
+    "no_hard_hat": (0, 165, 255),
+    "no_head_wear": (0, 0, 139),
 }
-
 
 @app.post("/detect")
 async def detect(file: UploadFile = File(...)):
@@ -30,12 +28,12 @@ async def detect(file: UploadFile = File(...)):
 
     try:
         image_bytes = await file.read()
-        img_pil = Image.open(io.BytesIO(image_bytes)).convert("RGB")
-        img_array = np.array(img_pil)
+        image_np = np.frombuffer(image_bytes, np.uint8)
+        img_array = cv2.imdecode(image_np, cv2.IMREAD_COLOR)
 
-      
-        results = model(img_array, conf=0.35)
+        results = model(img_array, conf=0.39)
         result = results[0]
+
         boxes = result.boxes
         names = model.names
 
@@ -52,17 +50,12 @@ async def detect(file: UploadFile = File(...)):
 
         for box in boxes:
             conf = float(box.conf)
-            if conf < 0.35:
+            if conf <= 0.39:
                 continue
 
             class_id = int(box.cls)
             class_name = names[class_id]
             x1, y1, x2, y2 = map(int, box.xyxy[0])
-
-            color = COLOR_MAP.get(class_name, (255, 255, 255))
-            cv2.rectangle(img_array, (x1, y1), (x2, y2), color, 2)
-            cv2.putText(img_array, f"{class_name} {conf:.2f}", (x1, y1 - 8),
-                        cv2.FONT_HERSHEY_SIMPLEX, 0.6, color, 2)
 
             detections.append({
                 "class": class_name,
@@ -73,19 +66,21 @@ async def detect(file: UploadFile = File(...)):
 
         if not detections:
             return JSONResponse(content={
-                "summary_text": "⚠️ No se detectaron objetos con confianza >= 0.35.",
+                "summary_text": "⚠️ No se detectaron objetos con confianza >= 0.39.",
                 "summary": {},
                 "detections": [],
                 "image_base64": ""
             })
 
-       
-        img_pil_result = Image.fromarray(img_array)
+        # 🖼 Dibujar segmentación
+        img_segmented = result.plot()
+
+        img_pil_result = Image.fromarray(img_segmented)
         buffer = io.BytesIO()
         img_pil_result.save(buffer, format="JPEG")
         last_image_bytes = buffer.getvalue()
 
-        
+        # 📊 Resumen
         resumen = (
             f"Se detectaron {len(detections)} objetos.\n"
             f"- Personas detectadas: {conteo.get('person', 0)}\n"
@@ -93,6 +88,14 @@ async def detect(file: UploadFile = File(...)):
             f"- Personas con algo en la cabeza sin protección: {conteo.get('no_hard_hat', 0)}\n"
             f"- Personas sin nada en la cabeza: {conteo.get('no_head_wear', 0)}"
         )
+
+        # ⚠️ Verificación adicional
+        if conteo.get('hard_hat', 0) > conteo.get('person', 0):
+            resumen += (
+                "\n\n⚠️ Advertencia: Se detectaron más cascos que personas. "
+                "Esto puede indicar un uso inadecuado del equipo de protección o errores en la detección."
+            )
+
         last_summary_text = resumen
 
         return {
@@ -105,7 +108,6 @@ async def detect(file: UploadFile = File(...)):
     except Exception as e:
         return JSONResponse(status_code=500, content={"error": str(e)})
 
-
 @app.get("/image")
 def get_last_image():
     if not last_image_bytes:
@@ -117,12 +119,12 @@ def get_last_image():
         <head><title>Imagen Detectada</title></head>
         <body style="font-family:sans-serif;">
             <h2>Última imagen procesada</h2>
-            <img src="data:image/jpeg;base64,{base64_img}" alt="Imagen detectada" style="width:640px; border:1px solid #ccc;" />
+            <img src="data:image/jpeg;base64,{base64_img}" alt="Imagen detectada"
+                 style="width:640px; border:1px solid #ccc; object-fit:contain;" />
         </body>
     </html>
     """
     return HTMLResponse(content=html)
-
 
 @app.get("/", response_class=HTMLResponse)
 def home():
@@ -138,10 +140,10 @@ def home():
     <html>
         <head><title>YOLOv8 Detección</title></head>
         <body style="font-family:sans-serif; text-align:center; padding:40px;">
-            <h1>🚧 Análisis de Casco con YOLOv8</h1>
+            <h1>🚧 Análisis de Casco con YOLOv8 (Segmentación)</h1>
             <p>Usa los siguientes botones para interactuar con la API:</p>
             <a href="/docs" style="padding: 10px 20px; background: #0b5ed7; color: white; text-decoration: none; border-radius: 5px; margin: 10px;">Abrir Swagger</a>
-            <a href="/image" style="padding: 10px 20px; background: #198754; color: white; text-decoration: none; border-radius: 5px; margin: 10px;">Ver Imagen Detectada</a>
+            <a href="/image" style="padding: 10px 20px; background: #198754; color: white; text-decoration: none; border-radius: 5px; margin: 10px;">Ver Imagen Procesada</a>
             <hr style="margin:40px 0;">
             {resumen}
         </body>
