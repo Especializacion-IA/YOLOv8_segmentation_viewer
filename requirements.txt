@@ -2,3 +2,6 @@ ultralytics==8.3.156
 opencv-python
 matplotlib
 pillow
+fastapi
+uvicorn
+numpy
