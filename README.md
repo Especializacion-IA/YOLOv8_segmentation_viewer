@@ -42,16 +42,20 @@ YOLOv8_SEGMENTATION_VIEWER/
 * Tener instalado [Docker Desktop](https://www.docker.com/products/docker-desktop/) en tu sistema (Windows, Mac o Linux).
 * (Opcional) Python 3.10+ y pip si deseas la instalación manual.
 
+## 🔧 Clonar el repositorio:
+
+```bash
+git clone https://github.com/Especializacion-IA/YOLOv8_segmentation_viewer.git
+cd YOLOv8_segmentation_viewer
+```
 ---
 
 ## 🐳 Ejecución rápida con Docker (recomendado)
 
 ### 1. Construir la imagen Docker
-Abre una terminal (CMD, PowerShell, Terminal de Windows, Terminal en Mac o Linux) y navega a la carpeta raíz del proyecto:
+Abre una terminal (CMD, PowerShell, Terminal de Windows, Terminal en Mac o Linux) en la carpeta raíz del proyecto.
 
-```bash
-cd ruta/a/YOLOv8_segmentation_viewer
-```
+⚠️ Recuerda que tienes que tener docker funcionando para continuar.
 
 Construye la imagen Docker:
 
