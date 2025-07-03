@@ -75,13 +75,27 @@ Desde la raíz del proyecto, ejecuta:
 
 uvicorn app.main:app --reload
 ```
-Esto iniciará la API en:
+Esto iniciará la API a la que se accede en http://localhost:8000/
 
-Página resumen: http://localhost:8000/
+![image](https://github.com/user-attachments/assets/afb77c2c-a7ae-4c79-8103-47e22302b0ef)
 
-Swagger UI: http://localhost:8000/docs
+Esto abrira el [Swagger UI](http://localhost:8000/docs), para cargar la imagen hacer clic en POST y después Try it out
 
-Imagen procesada: http://localhost:8000/image
+![image](https://github.com/user-attachments/assets/584f8289-92ef-4e86-a0ee-b6f7d9c6308b)
+
+En este punto se selecciona el archivo y se ejecuta:
+
+![image](https://github.com/user-attachments/assets/fd93c2cc-e6a8-44ec-9523-90893afecd11)
+
+Esto te devolvera todos los detalles de analisis de la imagen:
+
+![Screenshot from 2025-07-02 19-56-16](https://github.com/user-attachments/assets/3b66cf74-3ea2-45f3-ad7e-8838a5447c76)
+
+Para visualizar la imagen procesada accede a [aqui](http://localhost:8000/) donde aparece un resumen de la última imagen analizada y pulsa en Ver Imagen.
+
+![Screenshot from 2025-07-03 09-22-08](https://github.com/user-attachments/assets/5d47358f-3bd1-4af4-b707-71ed2dd7880f)
+
+![Screenshot from 2025-07-03 09-22-29](https://github.com/user-attachments/assets/8032a38d-cc3a-4e25-90d8-678ef0fa061d)
 
 ### 📡 ENDPOINTS DISPONIBLES:
 
