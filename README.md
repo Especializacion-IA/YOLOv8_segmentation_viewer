@@ -18,7 +18,6 @@ El modelo ha sido entrenado para detectar las siguientes 4 clases:
 
 🙆‍♂️  `no_head_wear`: Ausencia de cualquier elemento en la cabeza de una persona.
 
-
 ## 📁 ESTRUCTURA DEL PROYECTO
 ```
 YOLOv8_SEGMENTATION_VIEWER/
@@ -39,21 +38,63 @@ YOLOv8_SEGMENTATION_VIEWER/
 └── README.md
 ```
 
-## Uso
+## 🚀 Requisitos
+* Tener instalado [Docker Desktop](https://www.docker.com/products/docker-desktop/) en tu sistema (Windows, Mac o Linux).
+* (Opcional) Python 3.10+ y pip si deseas la instalación manual.
 
-### 🚀 Requisitos
+---
 
-* Python 3.10 o superior
-* `pip`
+## 🐳 Ejecución rápida con Docker (recomendado)
 
-### 🔧 Clonar el repositorio:
+### 1. Construir la imagen Docker
+Abre una terminal (CMD, PowerShell, Terminal de Windows, Terminal en Mac o Linux) y navega a la carpeta raíz del proyecto:
+
+```bash
+cd ruta/a/YOLOv8_segmentation_viewer
+```
+
+Construye la imagen Docker:
+
+```bash
+docker build -t yolov8-segmentation-viewer .
+```
+
+### 2. Ejecutar el contenedor
+
+```bash
+docker run -p 8000:8000 yolov8-segmentation-viewer
+```
+
+Esto iniciará el servidor FastAPI dentro del contenedor. La API estará disponible en:
+
+```
+http://localhost:8000
+```
+
+### 3. Probar la API
+- Abre tu navegador y accede a [http://localhost:8000/docs](http://localhost:8000/docs) para ver la documentación interactiva (Swagger UI).
+- Puedes probar los endpoints directamente desde Swagger UI o usando herramientas como Postman o curl.
+
+### 4. Notas para Windows y Mac
+- **Windows:** Puedes usar CMD, PowerShell o la terminal de VSCode para ejecutar los comandos Docker.
+- **Mac:** Usa la aplicación Terminal.
+- Si tienes problemas de permisos o de recursos, revisa la configuración de Docker Desktop (Settings > Resources).
+- Asegúrate de que el archivo del modelo (`model/best.pt`) esté presente antes de construir la imagen.
+
+---
+
+## 🔧 Instalación manual (opcional/avanzado)
+
+> ⚠️ **Nota:** Si prefieres no usar Docker, puedes instalar las dependencias y ejecutar el proyecto manualmente siguiendo estos pasos.
+
+### 1. Clonar el repositorio:
 
 ```bash
 git clone https://github.com/Especializacion-IA/YOLOv8_segmentation_viewer.git
 cd YOLOv8_segmentation_viewer
 ```
 
-### 🔧 Instalación manual de dependencias:
+### 2. Instalación manual de dependencias:
 
 Comprueba si tienes `pip` instalado:
 
@@ -67,35 +108,42 @@ Ejecuta requirements.txt con:
 pip install -r requirements.txt
 ```
 
-### ▶️ COMO EJECUTAR EL SERVIDOR
+### 3. Ejecutar el servidor manualmente
 
 Desde la raíz del proyecto, ejecuta:
 
 ```bash
-
 uvicorn app.main:app --reload
 ```
 Esto iniciará la API a la que se accede en http://localhost:8000/
 
-![image](https://github.com/user-attachments/assets/afb77c2c-a7ae-4c79-8103-47e22302b0ef)
+---
 
-Esto abrira el [Swagger UI](http://localhost:8000/docs), para cargar la imagen hacer clic en POST y después Try it out
+## ▶️ Uso de la API (Guía visual para instalación manual)
 
-![image](https://github.com/user-attachments/assets/584f8289-92ef-4e86-a0ee-b6f7d9c6308b)
+- Abre tu navegador y accede a [http://localhost:8000/docs](http://localhost:8000/docs) para ver la documentación interactiva (Swagger UI).
 
-En este punto se selecciona el archivo y se ejecuta:
+  ![image](https://github.com/user-attachments/assets/afb77c2c-a7ae-4c79-8103-47e22302b0ef)
 
-![image](https://github.com/user-attachments/assets/fd93c2cc-e6a8-44ec-9523-90893afecd11)
+- Para cargar una imagen, haz clic en POST `/detect` y después en "Try it out":
 
-Esto te devolvera todos los detalles de analisis de la imagen:
+  ![image](https://github.com/user-attachments/assets/584f8289-92ef-4e86-a0ee-b6f7d9c6308b)
 
-![Screenshot from 2025-07-02 19-56-16](https://github.com/user-attachments/assets/3b66cf74-3ea2-45f3-ad7e-8838a5447c76)
+- Selecciona el archivo y ejecuta la petición:
 
-Para visualizar la imagen procesada accede a [aqui](http://localhost:8000/) donde aparece un resumen de la última imagen analizada y pulsa en Ver Imagen.
+  ![image](https://github.com/user-attachments/assets/fd93c2cc-e6a8-44ec-9523-90893afecd11)
 
-![Screenshot from 2025-07-03 09-22-08](https://github.com/user-attachments/assets/5d47358f-3bd1-4af4-b707-71ed2dd7880f)
+- Esto te devolverá todos los detalles de análisis de la imagen:
 
-![Screenshot from 2025-07-03 09-22-29](https://github.com/user-attachments/assets/8032a38d-cc3a-4e25-90d8-678ef0fa061d)
+  ![Screenshot from 2025-07-02 19-56-16](https://github.com/user-attachments/assets/3b66cf74-3ea2-45f3-ad7e-8838a5447c76)
+
+- Para visualizar la imagen procesada accede a [http://localhost:8000/](http://localhost:8000/) donde aparece un resumen de la última imagen analizada y pulsa en "Ver Imagen":
+
+  ![Screenshot from 2025-07-03 09-22-08](https://github.com/user-attachments/assets/5d47358f-3bd1-4af4-b707-71ed2dd7880f)
+
+  ![Screenshot from 2025-07-03 09-22-29](https://github.com/user-attachments/assets/8032a38d-cc3a-4e25-90d8-678ef0fa061d)
+
+---
 
 ### 📡 ENDPOINTS DISPONIBLES:
 
